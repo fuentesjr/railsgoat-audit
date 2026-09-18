@@ -1,0 +1,182 @@
+
+== Brakeman Report ==
+
+Application Path: /Users/sal/Projects/railsgoat
+Rails Version: 8.0.4
+Brakeman Version: 8.0.5
+Scan Date: 2026-09-11 17:18:47 -0700
+Duration: 0.740748 seconds
+Checks Run: BasicAuth, BasicAuthTimingAttack, CSRFTokenForgeryCVE, ContentTag, CookieSerialization, CreateWith, CrossSiteScripting, DefaultRoutes, Deserialize, DetailedExceptions, DigestDoS, DynamicFinders, EOLRails, EOLRuby, EscapeFunction, Evaluation, Execute, FileAccess, FileDisclosure, FilterSkipping, ForgerySetting, HeaderDoS, I18nXSS, JRubyXML, JSONEncoding, JSONEntityEscape, JSONParsing, LinkTo, LinkToHref, MailTo, MassAssignment, MimeTypeDoS, ModelAttrAccessible, ModelAttributes, ModelSerialize, NestedAttributes, NestedAttributesBypass, NumberToCurrency, PageCachingCVE, Pathname, PermitAttributes, QuoteTableName, Ransack, Redirect, RegexDoS, Render, RenderDoS, RenderInline, RenderRCE, ResponseSplitting, RouteDoS, SQL, SQLCVEs, SSLVerify, SafeBufferManipulation, SanitizeConfigCve, SanitizeMethods, SelectTag, SelectVulnerability, Send, SendFile, SessionManipulation, SessionSettings, SimpleFormat, SingleQuotes, SkipBeforeFilter, SprocketsPathTraversal, StripTags, SymbolDoSCVE, TemplateInjection, TranslateBug, UnsafeReflection, UnsafeReflectionMethods, ValidationRegex, VerbConfusion, WeakRSAKey, WithoutProtection, XMLDoS, YAMLParsing
+
+== Overview ==
+
+Controllers: 17
+Models: 12
+Templates: 27
+Errors: 0
+Security Warnings: 19
+
+== Warning Types ==
+
+Command Injection: 1
+Cross-Site Request Forgery: 1
+Cross-Site Scripting: 2
+Dangerous Send: 1
+File Access: 1
+Format Validation: 1
+Mass Assignment: 2
+Redirect: 1
+Remote Code Execution: 4
+SQL Injection: 2
+Session Setting: 2
+Unmaintained Dependency: 1
+
+== Warnings ==
+
+Confidence: High
+Category: Cross-Site Request Forgery
+Check: ForgerySetting
+Message: `protect_from_forgery` should be called in `ApplicationController`
+File: app/controllers/application_controller.rb
+Line: 2
+
+Confidence: High
+Category: Cross-Site Scripting
+Check: CrossSiteScripting
+Message: Unescaped cookie value
+Code: cookies[:font]
+File: app/views/layouts/application.html.erb
+Line: 427
+
+Confidence: High
+Category: Dangerous Send
+Check: Send
+Message: User controlled method execution
+Code: self.try(params[:graph])
+File: app/controllers/dashboard_controller.rb
+Line: 16
+
+Confidence: High
+Category: File Access
+Check: SendFile
+Message: Parameter value used in file name
+Code: send_file(params[:type].constantize.new(params[:name]), :disposition => "attachment")
+File: app/controllers/benefit_forms_controller.rb
+Line: 13
+
+Confidence: High
+Category: Format Validation
+Check: ValidationRegex
+Message: Insufficient validation for `email` using `/.+@.+\..+/i`. Use `\A` and `\z` as anchors
+File: app/models/user.rb
+Line: 13
+
+Confidence: High
+Category: Mass Assignment
+Check: PermitAttributes
+Message: Potentially dangerous key allowed for mass assignment
+Code: params.require(:user).permit(:email, :admin, :first_name, :last_name)
+File: app/controllers/users_controller.rb
+Line: 55
+
+Confidence: High
+Category: Redirect
+Check: Redirect
+Message: Possible unprotected redirect
+Code: redirect_to((params[:url] or home_dashboard_index_path))
+File: app/controllers/sessions_controller.rb
+Line: 26
+
+Confidence: High
+Category: Remote Code Execution
+Check: UnsafeReflection
+Message: Unsafe reflection method `constantize` called on parameter value
+Code: params[:class].classify.constantize
+File: app/controllers/api/v1/mobile_controller.rb
+Line: 10
+
+Confidence: High
+Category: Remote Code Execution
+Check: UnsafeReflection
+Message: Unsafe reflection method `constantize` called on parameter value
+Code: params[:class].classify.constantize
+File: app/controllers/api/v1/mobile_controller.rb
+Line: 17
+
+Confidence: High
+Category: Remote Code Execution
+Check: UnsafeReflection
+Message: Unsafe reflection method `constantize` called on parameter value
+Code: params[:type].constantize
+File: app/controllers/benefit_forms_controller.rb
+Line: 12
+
+Confidence: High
+Category: SQL Injection
+Check: SQL
+Message: Possible SQL injection
+Code: User.where("id = '#{params[:user][:id]}'")
+File: app/controllers/users_controller.rb
+Line: 29
+
+Confidence: High
+Category: Session Setting
+Check: SessionSettings
+Message: Session secret should not be included in version control
+File: config/initializers/secret_token.rb
+Line: 8
+
+Confidence: High
+Category: Session Setting
+Check: SessionSettings
+Message: Session cookies should be set to HTTP only
+File: config/initializers/session_store.rb
+Line: 4
+
+Confidence: Medium
+Category: Command Injection
+Check: Execute
+Message: Possible command injection
+Code: system("cp #{full_file_name} #{data_path}/bak#{Time.zone.now.to_i}_#{file.original_filename}")
+File: app/models/benefits.rb
+Line: 15
+
+Confidence: Medium
+Category: Cross-Site Scripting
+Check: JSONEntityEscape
+Message: HTML entities in JSON are not escaped by default
+Code: ActiveSupport::JSON::Encoding.escape_html_entities_in_json = false
+File: config/environments/production.rb
+Line: 2
+
+Confidence: Medium
+Category: Mass Assignment
+Check: MassAssignment
+Message: Specify exact keys allowed for mass assignment instead of using `permit!` which allows any keys
+Code: params.require(:user).permit!
+File: app/controllers/users_controller.rb
+Line: 50
+
+Confidence: Medium
+Category: Remote Code Execution
+Check: Deserialize
+Message: `Marshal.load` called with parameter value
+Code: Marshal.load(Base64.decode64(params[:user]))
+File: app/controllers/password_resets_controller.rb
+Line: 6
+
+Confidence: Medium
+Category: SQL Injection
+Check: SQL
+Message: Possible SQL injection
+Code: select("#{col}")
+File: app/models/analytics.rb
+Line: 3
+
+Confidence: Medium
+Category: Unmaintained Dependency
+Check: EOLRails
+Message: Support for Rails 8.0.4 ends on 2026-10-07
+File: Gemfile.lock
+Line: 667
+

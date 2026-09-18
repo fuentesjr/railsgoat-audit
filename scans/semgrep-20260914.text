@@ -1,0 +1,291 @@
+                    
+                    
+┌──────────────────┐
+│ 32 Code Findings │
+└──────────────────┘
+                                                      
+  [36m[22m[24m  app/controllers/admin_controller.rb[0m
+    ❯❱ [1mruby.rails.security.brakeman.check-unscoped-find.check-unscoped-find[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found an unscoped `find(...)` with user-controllable input. If the ActiveRecord model being searched
+          against is sensitive, this may lead to Insecure Direct Object Reference (IDOR) behavior and allow   
+          users to read arbitrary records. Scope the find to the current user, e.g.                           
+          `current_user.accounts.find(params[:id])`.                                                          
+          Details: https://sg.run/dPbP                                                                        
+                                                                                                              
+           28┆ @user = User.find_by_id(params[:admin_id].to_s)
+            ⋮┆----------------------------------------
+           34┆ user = User.find_by_id(params[:admin_id])
+                                                              
+  [36m[22m[24m  app/controllers/api/v1/mobile_controller.rb[0m
+   ❯❯❱ [1mruby.rails.security.brakeman.check-unsafe-reflection.check-unsafe-reflection[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found user-controllable input to Ruby reflection functionality. This allows a remote user to   
+          influence runtime behavior, up to and including arbitrary remote code execution. Do not provide
+          user-controllable input to reflection functionality. Do not call symbol conversion on user-    
+          controllable input.                                                                            
+          Details: https://sg.run/vpEX                                                                   
+                                                                                                         
+           10┆ model = params[:class].classify.constantize
+            ⋮┆----------------------------------------
+           17┆ model = params[:class].classify.constantize
+                                                             
+  [36m[22m[24m  app/controllers/api/v1/users_controller.rb[0m
+    ❯❱ [1mruby.lang.security.weak-hashes-sha1.weak-hashes-sha1[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Should not use SHA1 to generate hashes. There is a proven SHA1 hash collision by Google, which could
+          lead to vulnerabilities. Use SHA256, SHA3 or other hashing functions instead.                       
+          Details: https://sg.run/e4qX                                                                        
+                                                                                                              
+           42┆ digest = OpenSSL::Digest::SHA1.hexdigest("#{ACCESS_TOKEN_SALT}:#{id}")
+                                                              
+  [36m[22m[24m  app/controllers/benefit_forms_controller.rb[0m
+   ❯❯❱ [1mruby.rails.security.brakeman.check-unsafe-reflection.check-unsafe-reflection[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found user-controllable input to Ruby reflection functionality. This allows a remote user to   
+          influence runtime behavior, up to and including arbitrary remote code execution. Do not provide
+          user-controllable input to reflection functionality. Do not call symbol conversion on user-    
+          controllable input.                                                                            
+          Details: https://sg.run/vpEX                                                                   
+                                                                                                         
+           12┆ file = params[:type].constantize.new(path)
+   
+   ❯❯❱ [1mruby.rails.security.brakeman.check-send-file.check-send-file[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Allowing user input to `send_file` allows a malicious user to potentially read arbitrary files from
+          the server. Avoid accepting user input in `send_file` or normalize with `File.basename(...)`       
+          Details: https://sg.run/GbY1                                                                       
+                                                                                                             
+           13┆ send_file file, disposition: "attachment"
+                                                                
+  [36m[22m[24m  app/controllers/password_resets_controller.rb[0m
+   ❯❯❱ [1mruby.lang.security.bad-deserialization.bad-deserialization[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Checks for unsafe deserialization. Objects in Ruby can be serialized into strings, then later loaded
+          from strings. However, uses of load and object_load can cause remote code execution. Loading user   
+          input with MARSHAL or CSV can potentially be dangerous. Use JSON in a secure fashion instead.       
+          Details: https://sg.run/DJj2                                                                        
+                                                                                                              
+            6┆ user = Marshal.load(Base64.decode64(params[:user])) unless params[:user].nil?
+   
+    ❯❱ [1mruby.rails.security.audit.xss.avoid-html-safe.avoid-html-safe[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'html_safe()' does not make the supplied string safe. 'html_safe()' bypasses HTML escaping. If    
+          external data can reach here, this exposes your application to cross-site scripting (XSS) attacks.
+          Ensure no external data reaches here.                                                             
+          Details: https://sg.run/Zeq7                                                                      
+                                                                                                            
+           36┆ flash[:error] = "There was an issue sending password reset email to
+               #{params[:email]}".html_safe unless params[:email].nil?            
+   
+    ❯❱ [1mruby.lang.security.weak-hashes-md5.weak-hashes-md5[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Should not use md5 to generate hashes. md5 is proven to be vulnerable through the use of brute-force
+          attacks. Could also result in collisions, leading to potential collision attacks. Use SHA256 or     
+          other hashing functions instead.                                                                    
+          Details: https://sg.run/O1re                                                                        
+                                                                                                              
+           48┆ hash = Digest::MD5.hexdigest(email)
+            ⋮┆----------------------------------------
+           57┆ email = Digest::MD5.hexdigest(@user.email)
+                                                    
+  [36m[22m[24m  app/controllers/pay_controller.rb[0m
+    ❯❱ [1mruby.rails.security.brakeman.check-unscoped-find.check-unscoped-find[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found an unscoped `find(...)` with user-controllable input. If the ActiveRecord model being searched
+          against is sensitive, this may lead to Insecure Direct Object Reference (IDOR) behavior and allow   
+          users to read arbitrary records. Scope the find to the current user, e.g.                           
+          `current_user.accounts.find(params[:id])`.                                                          
+          Details: https://sg.run/dPbP                                                                        
+                                                                                                              
+           29┆ pay = Pay.find_by_id(params[:id])
+                                                         
+  [36m[22m[24m  app/controllers/sessions_controller.rb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.avoid-redirect.avoid-redirect[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          When a redirect uses user input, a malicious user can spoof a website under a trusted URL or access
+          restricted parts of a site. When using user-supplied values, sanitize the value before using it for
+          the redirect.                                                                                      
+          Details: https://sg.run/5DY3                                                                       
+                                                                                                             
+           26┆ redirect_to path
+   
+    ❯❱ [1mruby.rails.security.brakeman.check-redirect-to.check-redirect-to[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found potentially unsafe handling of redirect behavior path. Do not pass `params` to `redirect_to`
+          without the `:only_path => true` hash value.                                                      
+          Details: https://sg.run/eJNX                                                                      
+                                                                                                            
+           26┆ redirect_to path
+                                                      
+  [36m[22m[24m  app/controllers/users_controller.rb[0m
+   ❯❯❱ [1mruby.rails.security.injection.tainted-sql-string.tainted-sql-string[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected user input used to manually construct a SQL string. This is usually bad practice because 
+          manual construction could accidentally result in a SQL injection. An attacker could use a SQL     
+          injection to steal or modify contents of the database. Instead, use a parameterized query which is
+          available by default in most database engines. Alternatively, consider using an object-relational 
+          mapper (ORM) such as ActiveRecord which will protect your queries.                                
+          Details: https://sg.run/Y85o                                                                      
+                                                                                                            
+           29┆ user = User.where("id = '#{params[:user][:id]}'")[0]
+                                     
+  [36m[22m[24m  app/models/user.rb[0m
+   ❯❯❱ [1mruby.rails.security.brakeman.check-validation-regex.check-validation-regex[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          /.+@.+\..+/i Found an incorrectly-bounded regex passed to `validates_format_of` or `validate ...  
+          format => ...`. Ruby regex behavior is multiline by default and lines should be terminated by `\A`
+          for beginning of line and `\Z` for end of line, respectively.                                     
+          Details: https://sg.run/ZPo7                                                                      
+                                                                                                            
+           13┆ validates_format_of :email, with: /.+@.+\..+/i
+   
+    ❯❱ [1mruby.lang.security.weak-hashes-md5.weak-hashes-md5[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Should not use md5 to generate hashes. md5 is proven to be vulnerable through the use of brute-force
+          attacks. Could also result in collisions, leading to potential collision attacks. Use SHA256 or     
+          other hashing functions instead.                                                                    
+          Details: https://sg.run/O1re                                                                        
+                                                                                                              
+           45┆ if user.password == Digest::MD5.hexdigest(password)
+            ⋮┆----------------------------------------
+           55┆ self.password = Digest::MD5.hexdigest(self.password)
+                                                     
+  [36m[22m[24m  app/views/admin/analytics.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.unquoted-attribute.unquoted-attribute[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected a unquoted template variable as an attribute. If unquoted, a malicious actor could inject 
+          custom JavaScript handlers. To fix this, add quotes around the template expression, like this: "<%=
+          expr %>".                                                                                          
+          Details: https://sg.run/PpeN                                                                       
+                                                                                                             
+            9┆ <table class="table table-striped table-hover table-bordered pull-left <%= "custom" if
+               params[:field] %>" id="data-table">                                                   
+                                                         
+  [36m[22m[24m  app/views/layouts/application.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.avoid-raw.avoid-raw[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'raw' renders raw HTML, as the name implies. This means that normal HTML escaping is bypassed. If
+          user data can be controlled here, this exposes your application to cross-site scripting (XSS). If
+          you need to do this, be sure to correctly sanitize the data using a library such as DOMPurify.   
+          Details: https://sg.run/3Aqg                                                                     
+                                                                                                           
+          427┆ body { font-size:<%= raw cookies[:font] %> !important;}
+                                                            
+  [36m[22m[24m  app/views/layouts/shared/_header.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.var-in-href.var-in-href[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected a template variable used in an anchor tag with the 'href' attribute. This allows a       
+          malicious actor to input the 'javascript:' URI and is subject to cross- site scripting (XSS)      
+          attacks. If using a relative URL, start with a literal forward slash and concatenate the URL, like
+          this: href='/<%= link =>'. You may also consider setting the Content Security Policy (CSP) header.
+          Details: https://sg.run/J3Do                                                                      
+                                                                                                            
+            7┆ <a href="<%= home_dashboard_index_path %>" class="rg-brand">
+   
+    ❯❱ [1mruby.rails.security.audit.xss.templates.avoid-html-safe.avoid-html-safe[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'html_safe' renders raw HTML. This means that normal HTML escaping is bypassed. If user data can be
+          controlled here, this exposes your application to cross-site scripting (XSS). If you need to do    
+          this, be sure to correctly sanitize the data using a library such as DOMPurify.                    
+          Details: https://sg.run/Q8rD                                                                       
+                                                                                                             
+           47┆ <span class="text-dark"><%= current_user.first_name.html_safe %></span>
+   
+    ❯❱ [1mruby.rails.security.audit.xss.templates.var-in-href.var-in-href[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected a template variable used in an anchor tag with the 'href' attribute. This allows a       
+          malicious actor to input the 'javascript:' URI and is subject to cross- site scripting (XSS)      
+          attacks. If using a relative URL, start with a literal forward slash and concatenate the URL, like
+          this: href='/<%= link =>'. You may also consider setting the Content Security Policy (CSP) header.
+          Details: https://sg.run/J3Do                                                                      
+                                                                                                            
+           75┆ <a href="<%= login_path %>" class="rg-brand">
+                                                    
+  [36m[22m[24m  app/views/messages/index.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.avoid-html-safe.avoid-html-safe[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'html_safe' renders raw HTML. This means that normal HTML escaping is bypassed. If user data can be
+          controlled here, this exposes your application to cross-site scripting (XSS). If you need to do    
+          this, be sure to correctly sanitize the data using a library such as DOMPurify.                    
+          Details: https://sg.run/Q8rD                                                                       
+                                                                                                             
+          167┆ url: <%= "/users/#{current_user.id}/messages.json".inspect.html_safe %>,
+                                                   
+  [36m[22m[24m  app/views/messages/show.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.dangerous-link-to.dangerous-link-to[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected a template variable used in 'link_to'. This will generate dynamic data in the 'href'   
+          attribute. This allows a malicious actor to input the 'javascript:' URI and is subject to cross-
+          site scripting (XSS) attacks. If using a relative URL, start with a literal forward slash and   
+          concatenate the URL, like this: 'link_to "Here", "/"+@link'. You may also consider setting the  
+          Content Security Policy (CSP) header.                                                           
+          Details: https://sg.run/4ybg                                                                    
+                                                                                                          
+           26┆ <td><%= link_to "Delete", user_message_path, {:id => "@message.id", :method => 'delete',
+               :class => "btn btn-danger pull-left"}%></td>                                            
+                                                         
+  [36m[22m[24m  app/views/paid_time_off/index.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.avoid-html-safe.avoid-html-safe[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'html_safe' renders raw HTML. This means that normal HTML escaping is bypassed. If user data can be
+          controlled here, this exposes your application to cross-site scripting (XSS). If you need to do    
+          this, be sure to correctly sanitize the data using a library such as DOMPurify.                    
+          Details: https://sg.run/Q8rD                                                                       
+                                                                                                             
+          210┆ events: <%= get_pto_schedule_schedule_index_path(:format => "json").inspect.html_safe %>,
+                                                                 
+  [36m[22m[24m  app/views/user_mailer/forgot_password.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.dangerous-link-to.dangerous-link-to[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Detected a template variable used in 'link_to'. This will generate dynamic data in the 'href'   
+          attribute. This allows a malicious actor to input the 'javascript:' URI and is subject to cross-
+          site scripting (XSS) attacks. If using a relative URL, start with a literal forward slash and   
+          concatenate the URL, like this: 'link_to "Here", "/"+@link'. You may also consider setting the  
+          Content Security Policy (CSP) header.                                                           
+          Details: https://sg.run/4ybg                                                                    
+                                                                                                          
+           16┆ <%= link_to "Click here to reset your password", @url %><br>
+                                                            
+  [36m[22m[24m  app/views/users/account_settings.html.erb[0m
+    ❯❱ [1mruby.rails.security.audit.xss.templates.avoid-html-safe.avoid-html-safe[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          'html_safe' renders raw HTML. This means that normal HTML escaping is bypassed. If user data can be
+          controlled here, this exposes your application to cross-site scripting (XSS). If you need to do    
+          this, be sure to correctly sanitize the data using a library such as DOMPurify.                    
+          Details: https://sg.run/Q8rD                                                                       
+                                                                                                             
+           81┆ url: <%= "/users/#{current_user.id}.json".inspect.html_safe %>,
+                                                      
+  [36m[22m[24m  config/initializers/secret_token.rb[0m
+    ❯❱ [1mruby.rails.security.brakeman.check-rails-session-secret-handling.check-rails-session-secret-handling[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found a string literal assignment to a Rails session secret `secret_key_base`. Do not commit secret 
+          values to source control! Any user in possession of this value may falsify arbitrary session data in
+          your application. Read this value from an environment variable, KMS, or file on disk outside of     
+          source control.                                                                                     
+          Details: https://sg.run/KyJd                                                                        
+                                                                                                              
+            8┆ Railsgoat::Application.config.secret_key_base = "2f1d90a26236c3245d96f5606c201a780dc9ca687e
+               5ed82b45e211bb5dc84c1870f61ca9e002dad5dd8a149c9792d8f07f31a9575065cca064bd6af44f8750e4"    
+                                               
+  [36m[22m[24m  spec/support/user_fixture.rb[0m
+    ❯❱ [1mruby.rails.security.brakeman.check-secrets.check-secrets[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Found a Brakeman-style secret - a variable with the name password/secret/api_key/rest_auth_site_key
+          and a non-empty string literal value.                                                              
+          Details: https://sg.run/5ZKl                                                                       
+                                                                                                             
+            9┆ password = "thi$ 1s cOmplExEr"
+                                                                
+  [36m[22m[24m  spec/vulnerabilities/password_hashing_spec.rb[0m
+    ❯❱ [1mruby.lang.security.weak-hashes-md5.weak-hashes-md5[0m
+          [31m[1m[24m❰❰ Blocking ❱❱[0m
+          Should not use md5 to generate hashes. md5 is proven to be vulnerable through the use of brute-force
+          attacks. Could also result in collisions, leading to potential collision attacks. Use SHA256 or     
+          other hashing functions instead.                                                                    
+          Details: https://sg.run/O1re                                                                        
+                                                                                                              
+           19┆ expect(normal_user.password).not_to eq(Digest::MD5.hexdigest(new_pass))
+            ⋮┆----------------------------------------
+           22┆ expect(normal_user.password).to eq(Digest::MD5.hexdigest(new_pass))
